@@ -1,25 +1,21 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Polo Digital - SEICT</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
     <div class="container">
         <header>
             <h1>Polo Digital - SEICT</h1>
             <p>Preencha o questionário abaixo para continuar.</p>
         </header>
-        
 
-        <form id="questionario" action="https://api.sheetmonkey.io/form/mYEjkhAZjWtvw3bTz7MABf" method="post">
+        <form id="questionario">
             <!-- Campo Criador -->
             <div class="form-group">
-                <input type="hidden" name="Created" value="x-sheetmonkey-current-date-time" />
                 <label for="criador">Criador:</label>
                 <select id="criador" name="Criador" required>
                     <option value="" disabled selected>Selecione uma opção</option>
@@ -30,27 +26,76 @@
                 </select>
                 <input type="text" id="outroCriador" name="CriadorOutro" placeholder="Especifique o criador" class="hidden">
             </div>
-        
+
             <!-- Campo Usuário -->
             <div class="form-group">
                 <label for="usuario">Usuário:</label>
                 <input type="text" id="usuario" name="Usuario" placeholder="Digite seu nome de usuário" required>
             </div>
-        
+
             <!-- Campo Senha -->
             <div class="form-group">
                 <label for="senha">Senha:</label>
-                <input type="text" id="senha" name="Senha" placeholder="Digite sua senha" required>
+                <input type="password" id="senha" name="Senha" placeholder="Digite sua senha" required>
             </div>
-        
+
             <!-- Botão de Envio -->
-            <input type="submit" value="Enviar" class="btn-enviar">
+            <button type="submit" class="btn-enviar">Enviar</button>
         </form>
-        
-        
     </div>
 
-    <script src="script.js"></script>
-</body>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const criadorSelect = document.getElementById("criador");
+            const outroCriadorInput = document.getElementById("outroCriador");
+            const form = document.getElementById("questionario");
 
+            // Exibir campo "Outro" se selecionado
+            criadorSelect.addEventListener("change", function () {
+                if (this.value === "OUTRO") {
+                    outroCriadorInput.classList.remove("hidden");
+                    outroCriadorInput.setAttribute("required", "true");
+                } else {
+                    outroCriadorInput.classList.add("hidden");
+                    outroCriadorInput.removeAttribute("required");
+                }
+            });
+
+            form.addEventListener("submit", function (e) {
+                e.preventDefault(); // Evita envio padrão
+                
+                let criador = criadorSelect.value;
+                if (criador === "OUTRO" && outroCriadorInput.value.trim() !== "") {
+                    criador = outroCriadorInput.value.trim();
+                }
+
+                const dados = {
+                    Criador: criador,
+                    Usuario: document.getElementById("usuario").value,
+                    Senha: document.getElementById("senha").value,
+                    Created: new Date().toISOString()
+                };
+
+                fetch("https://api.sheetmonkey.io/form/mYEjkhAZjWtvw3bTz7MABf", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dados)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Formulário enviado com sucesso!");
+                        form.reset();
+                        outroCriadorInput.classList.add("hidden");
+                    } else {
+                        alert("Erro ao enviar. Tente novamente.");
+                    }
+                })
+                .catch(error => {
+                    alert("Erro de conexão. Verifique sua internet.");
+                    console.error(error);
+                });
+            });
+        });
+    </script>
+</body>
 </html>
